@@ -15,49 +15,30 @@ namespace EmployeeManagement.DataAccess
 {
     public class LocationDataAccess:ILocationDataAccess
     {
-        public void Build()
-        {
-            TinyMapper.Bind<LocationEntity, LocationModel>(config =>
-            {
-                config.Ignore(x => x.LocationEntityId);
-                
-
-            });
-            TinyMapper.Bind<LocationModel, LocationEntity>();
-        }
+     
         
 
-        public List<LocationModel> GetAll()
+        public List<LocationEntity> GetAll()
         {
-            Build();
-            List<LocationModel> locations = [];
             List<LocationEntity> locs = [];
             using (var context = new ApplicationDbContext())
             {
                 context.Database.EnsureCreated();
-                locs=context.Locations.ToList();
-
-                foreach (LocationEntity loc in locs)
-                {
-                    LocationModel location = TinyMapper.Map<LocationModel>(loc);
-                    locations.Add(location);
-
-                }
+                locs = context.Locations.ToList();
                 context.SaveChanges();
             }
 
-             return locations;
+            return locs;
 
         }
 
-        public bool Set(LocationModel location)
+        public bool Set(LocationEntity location)
         {
-            Build();
+           
             using (var context=new ApplicationDbContext())
             {
                 context.Database.EnsureCreated();
-                LocationEntity loc = TinyMapper.Map<LocationEntity>(location);
-                context.Locations.Add(loc);
+                context.Locations.Add(location);
                 context.SaveChanges();
 
                 

@@ -16,47 +16,34 @@ namespace EmployeeManagement.DataAccess
 {
     public class RoleDataAccess:IRoleDataAccess
     {
-        public void Build() {
-
-            TinyMapper.Bind<RoleEntity, RoleModel>(config =>
-            {
-                config.Ignore(x => x.RoleEntityId);
+       
 
 
-            });
-            TinyMapper.Bind<RoleModel, RoleEntity>();
-        }
-
-
-        public List<RoleModel> GetAll()
+        public List<RoleEntity> GetAll()
         {
-            Build();
-            List<RoleModel> roles = new List<RoleModel>(); // Initialize the list
+          
+           
             List<RoleEntity>roleDataList= new List<RoleEntity>();
             using (var context=new ApplicationDbContext())
             {
                 context.Database.EnsureCreated();
-                roleDataList=context.Roles.ToList();
+                roleDataList = context.Roles.ToList();
 
-                foreach(RoleEntity role in roleDataList)
-                {
-                    roles.Add(TinyMapper.Map<RoleModel>(role));
-                }
+
                 context.SaveChanges();
 
             }
-            return roles;
+            return roleDataList;
         }
 
 
-        public bool Set(RoleModel role)
+        public bool Set(RoleEntity role)
         {
-            Build();
+           
             using (var context=new ApplicationDbContext())
             {
                 context.Database.EnsureCreated();
-                RoleEntity roleData=TinyMapper.Map<RoleEntity>(role);
-                context.Roles.Add(roleData);
+                context.Roles.Add(role);
                 context.SaveChanges();
 
             }

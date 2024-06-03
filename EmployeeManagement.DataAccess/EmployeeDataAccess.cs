@@ -11,26 +11,13 @@ namespace EmployeeManagement.DataAccess
     public class EmployeeDataAccess:IEmployeeDataAccess
     {
 
-         public void Build() {
-            TinyMapper.Bind<EmployeeEntity, EmployeeModel>(config =>
-            {
-                config.Ignore(x => x.EmployeeEntityId);
-                config.Ignore(x => x.RoleEntityId);
-                
-            });
-
-            TinyMapper.Bind<EmployeeModel, EmployeeEntity>();
-
-
-        }
+         
        
-        public  List<EmployeeModel> GetAll()
+        public  List<EmployeeEntity> GetAll()
         {
-            Build();
+          
             List<EmployeeEntity> employees = [];
-            List<EmployeeModel> emps = [];
-           
-
+            
             using (var context=new ApplicationDbContext())
                 {
                 context.Database.EnsureCreated();
@@ -38,13 +25,9 @@ namespace EmployeeManagement.DataAccess
                 employees=context.Employees.ToList();
 
             }
-                 foreach(EmployeeEntity emp in employees)
-            {
-                emps.Add(TinyMapper.Map<EmployeeModel>(emp))    ;
-
-            }   
+              
                
-                  return emps; 
+                  return employees; 
             }
 
 
@@ -53,18 +36,19 @@ namespace EmployeeManagement.DataAccess
             
        
 
-        public EmployeeModel GetOne(string employeeNumber)
+        public EmployeeEntity GetOne(string employeeNumber)
         {
 
-            Build();
+           
             using (var context = new ApplicationDbContext())
             {
                 context.Database.EnsureCreated();
 
-                EmployeeEntity emp =context.Employees.FirstOrDefault(e => e.EmpNo == employeeNumber)!;
-                EmployeeModel employee = TinyMapper.Map<EmployeeModel>(emp);
+                EmployeeEntity emp = context.Employees.FirstOrDefault(e => e.EmpNo == employeeNumber)!;
 
-                return employee;
+
+                return emp;
+
 
             }
 
@@ -74,20 +58,20 @@ namespace EmployeeManagement.DataAccess
 
         
 
-        public bool Update(EmployeeModel updatedEmployee,string empNo)
+        public bool Update(EmployeeEntity updatedEmployee)
         {
-            Build();
+            
             using (var context = new ApplicationDbContext())
             {
                 context.Database.EnsureCreated();
 
-                var employeeToUpdate = context.Employees.FirstOrDefault(e => e.EmpNo == empNo);
-                if (employeeToUpdate != null)
+
+                if (updatedEmployee != null)
                 {
-                    TinyMapper.Map(updatedEmployee, employeeToUpdate);
-                    context.Entry(employeeToUpdate).State = EntityState.Modified;
+
+                    context.Entry(updatedEmployee).State = EntityState.Modified;
                     context.SaveChanges();
-                   
+
                 }
 
                 return true;
@@ -98,28 +82,36 @@ namespace EmployeeManagement.DataAccess
 
         public bool Delete(string employeeNumber)
         {
-            Build();
+            
             using (var context = new ApplicationDbContext())
             {
                 var employeeToDelete = context.Employees.FirstOrDefault(e => e.EmpNo == employeeNumber);
                 context.Database.EnsureCreated();
 
-                context.Remove<EmployeeEntity>(employeeToDelete!);
-                context.SaveChanges();
-                return true;
+                if (employeeToDelete != null)
+                {
+                    context.Remove(employeeToDelete!);
+                    context.SaveChanges();
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+
+
 
             }
 
 
             
         }
-        public bool Set(EmployeeModel employee)
+        public bool Set(EmployeeEntity employee)
         {
-            Build();
+           
             using (var context = new ApplicationDbContext())
             {
-                EmployeeEntity employeeEntity = TinyMapper.Map<EmployeeEntity>(employee); ;
-                context.Employees.Add(employeeEntity);
+                context.Employees.Add(employee);
                 context.SaveChanges();
 
                 return true;
